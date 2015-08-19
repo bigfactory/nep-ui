@@ -1,0 +1,19 @@
+{
+  "name": "nep-ui",
+  "version": "0.0.2",
+  "main": "index.htm",
+  "dependencies": {
+    "nep": "^1.1.2",
+    "nep-recorder": "0.0.2"
+  },
+  "window": {
+    "show": false,
+    "title": "Nep",
+    "toolbar": false,
+    "width": 1200,
+    "height": 800,
+    "position": "center",
+    "min_width": 1200,
+    "min_height": 600
+  }
+}

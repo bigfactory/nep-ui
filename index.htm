@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <title>Nep</title>
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <link rel="stylesheet" type="text/css" href="semantic/dist/semantic.min.css">
+  <link rel="stylesheet" href="css/nep.css">
+  <script src="js/jquery.js"></script>
+  <script src="semantic/dist/semantic.min.js"></script>
+
+
+</head>
+<body>
+<div class="ui grid">
+  
+  <div class="sixteen wide column">
+    <h5 id="nep-session-head" class="ui header"><i class="shipping icon"></i><div class="content">Nep</div></h5>
+    <table id="nep-session-table-head" class="ui table">
+      <thead>
+        <tr>
+          <th class="nep-cell-1">#</th>
+          <th class="nep-cell-2">Result</th>
+          <th class="nep-cell-3">Protocol</th>
+          <th class="nep-cell-4">Host</th>
+          <th class="nep-cell-5">URL</th>
+          <th class="nep-cell-6">Body</th>
+          <th class="nep-cell-7">Content-Type</th>
+          <th class="nep-cell-8">Responder</th>
+        </tr>
+      </thead>
+    </table>
+    <div id="nep-session-wrap">
+      <table id="nep-session-table" class="ui table selectable">
+      </table>
+    </div>
+  </div>
+
+  <div id="nep-panel-container" class="sixteen wide column">
+
+    <div class="ui pointing secondary tabular menu">
+      <a class="item active" data-tab="first">Request</a>
+      <a class="item" data-tab="second">Response</a>
+    </div>
+
+    <div id="nep-panel-request" class="nep-panel ui existing tab segment active" data-tab="first"></div>
+    <div id="nep-panel-response" class="nep-panel ui existing  tab segment" data-tab="second"></div>
+
+</div>
+</body>
+</html>
+
+<script>
+process.env.TERM = 'dumb';
+
+$('.tabular.menu .item').tab();
+
+var url = require('url');
+
+var lastActive;
+var lastActiveId;
+
+function addOne(doc){
+  var req = doc.request;
+  var parsedUrl = url.parse(req.url);
+
+  $('#nep-session-table').append('<tr id="doc-'+doc.id+'" data-id="'+doc.id+'">\
+    <td class="nep-cell-1">'+doc.id+'</td>\
+    <td class="nep-cell-2">-</td>\
+    <td class="nep-cell-3">'+req.type.toUpperCase()+'</td>\
+    <td class="nep-cell-4">'+req.headers.host+'</td>\
+    <td class="nep-cell-5">'+parsedUrl.pathname+'</td>\
+    <td class="nep-cell-6">-</td>\
+    <td class="nep-cell-7">-</td>\
+    <td class="nep-cell-8">-</td>\
+  </tr>');
+  $('#nep-session-wrap')[0].scrollTop = 999999999;
+}
+
+
+function updatePanel(doc){
+  var req = doc.request;
+  var res = doc.response;
+  var parsedUrl = url.parse(req.url, true);
+  var query = parsedUrl.query;
+
+  var requestPanel = $('#nep-panel-request').empty();
+  
+
+  var reqHeaderPanel = $('<div class="nep-props-list ui divided selection list"></div>');
+  requestPanel.append('<h5 class="ui header">headers</h5>');
+  for(var name in req.headers){
+    reqHeaderPanel.append('<div class="item">\
+      <div class="ui horizontal label">'+name+'</div>'+req.headers[name]+'\
+    </div>');
+  }
+  requestPanel.append(reqHeaderPanel);
+
+  var queryCount = 0;
+  var reqQueryPanel = $('<div class="nep-props-list ui divided selection list"></div>');
+  for(var name in query){
+    queryCount++;
+    reqQueryPanel.append('<div class="item">\
+      <div class="ui horizontal label">'+name+'</div>'+query[name]+'\
+    </div>');
+  }
+  if(queryCount){
+    requestPanel.append('<h5 class="ui header">url query</h5>');
+    requestPanel.append(reqQueryPanel);
+  }
+
+
+  if(req.fields){
+    var reqFormPanel = $('<div class="nep-props-list ui divided selection list"></div>');
+    requestPanel.append('<h5 class="ui header">form data</h5>');
+    for(var name in req.fields){
+      reqFormPanel.append('<div class="item">\
+        <div class="ui horizontal label">'+name+'</div>'+req.fields[name]+'\
+      </div>');
+    }
+    requestPanel.append(reqFormPanel);
+  }
+
+  var responsePanel = $('#nep-panel-response').empty();
+  if(res){
+    var responseHeaderPanel = $('<div class="nep-props-list ui divided selection list"></div>');
+    responsePanel.append('<h5 class="ui header">headers</h5>');
+    for(var name in res.headers){
+      responseHeaderPanel.append('<div class="item">\
+        <div class="ui horizontal label">'+name+'</div>'+res.headers[name]+'\
+      </div>');
+    }
+    responsePanel.append(responseHeaderPanel);
+  }
+}
+
+function setField(id, fieldNum, content){
+  var line = $('#doc-'+id);
+
+  if(fieldNum == 2 && content > 399){
+    line.addClass('error');
+    line.attr('data-class', 'error');
+  }
+  line.find('.nep-cell-'+fieldNum).html(content);
+}
+
+function resize(){
+  var winHeight = $(window).height();
+  
+  var actions = {
+    'session': function(){
+      var deltaTop = $('#nep-session-wrap').offset().top;
+      $('#nep-session-wrap').css('height', winHeight - deltaTop - 308);    
+    },
+
+    'panel': function(){
+      var panels = $('.nep-panel');
+      var deltaTop = panels.offset().top;
+      var panelHeight = winHeight - deltaTop - 10;
+      panels.css('height', panelHeight);
+      panels.css('overflow-y', 'scroll');
+      panels.css('overflow-x', 'hidden');
+
+      // panels.each(function(i, panel){
+      //   panel = $(panel);
+
+      //   var headers = panel.find('.header');
+      //   var headerHeight = headers.height();
+      //   var headerCount = headers.size();
+
+      //   var lists = panels.find('.nep-props-list');
+      //   var listCount = lists.size();
+      //   if(!listCount){
+      //     return;
+      //   }
+      //   var listHeight = (panelHeight - headerCount*headerHeight)/listCount;
+      //   lists.css('height', listHeight);
+      // });        
+    }
+  }
+  
+  $.each(actions, function(i, action){
+    action();
+  });
+}
+
+
+resize();
+
+var Proxy = require('nep');
+var Recorder = require('nep-recorder');
+var misc = require('./lib/misc');
+
+var recorder = Recorder.create();
+recorder.clearCache();
+recorder.init();
+
+setTimeout(function(){
+  var gui = require('nw.gui');
+  var win = gui.Window.get();
+  var menubar = new gui.Menu({ type: 'menubar' });
+  var dev = new gui.Menu();
+  
+  dev.on('click', function() {
+    win.showDevTools();
+  });
+
+  win.menu = menubar;
+  win.menu.insert(new gui.MenuItem({ label: 'Dev', submenu: dev}));
+
+  var clearOption = {
+    key : "Ctrl+Shift+x",
+    active : function() {
+      $('#nep-session-table').empty();
+    },
+    failed : function(msg) {
+      // :(, fail to register the |key| or couldn't parse the |key|.
+      console.log(msg);
+    }
+  };
+  var clearShortcut = new gui.Shortcut(clearOption);
+
+  var devToolOption = {
+    key : "Ctrl+Shift+i",
+    active : function() {
+      win.showDevTools();
+    },
+    failed : function(msg) {
+      // :(, fail to register the |key| or couldn't parse the |key|.
+      console.log(msg);
+    }
+  };
+  var devToolShortcut = new gui.Shortcut(devToolOption);
+
+  // Register global desktop shortcut, which can work without focus.
+  gui.App.registerGlobalHotKey(clearShortcut);
+  gui.App.registerGlobalHotKey(devToolShortcut);
+
+  win.show();
+}, 100);
+
+$(window).on('resize', resize);
+
+
+
+
+$('#nep-session-table').delegate('tr', 'click', function(){
+  if(lastActive){
+    lastActive.removeClass('active');
+  }
+
+  lastActive = $(this);
+  lastActive.addClass('active');
+
+  var id = lastActive.attr('data-id');
+  id = parseInt(id, 10);
+  lastActiveId = id;
+
+  recorder.getRecord(id, function(err, doc){
+    updatePanel(doc);  
+  });
+
+});
+
+var rule = misc.loadRule();
+var proxy = Proxy.create({
+  port: 8989,
+  debug: false,
+  rules: rule,
+  filter: function(req, res){
+      recorder.record(req, res);
+  }
+});
+
+recorder.on('request.connect', function(id){
+  recorder.getRecord(id, function(err, doc){
+    addOne(doc);
+  });
+});
+
+recorder.on('request.finish', function(id){
+
+});
+
+recorder.on('response.finish', function(id){
+  recorder.getRecord(id, function(err, doc){
+    var res = doc.response;
+    var req = doc.request;
+
+    setField(id, 2, res.statusCode);
+
+    var contentType = res.headers['content-type'] || '';
+    contentType = contentType.split(';')[0];
+    setField(id, 7, contentType);
+
+    if(lastActiveId == id){
+      updatePanel(doc);
+    }
+
+    var stat = recorder.getResponseBodyStat(id);
+    setField(id, 6, stat.size);
+
+    var flag = req.flag;
+    var flagHtml = [];
+    var responder;
+    if(!flag || !flag.responder || !flag.responder.length){
+      setField(id, 8, 'PASS');
+    }
+    else{
+      responder = flag.responder;
+      for(var i = 0, len = responder.length; i < len; i++){
+        flagHtml.push('<span class="ui teal label">'+responder[i]+'</span>');
+      }
+      flagHtml = flagHtml.join('');
+      setField(id, 8, flagHtml);
+    }
+  });
+
+  
+});
+
+
+
+
+</script>

@@ -1,0 +1,82 @@
+body{
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.column{
+    padding-bottom: 0!important;
+}
+
+.ui.table{
+    font-size: 0.9em;
+}
+
+
+
+#nep-session-head{
+    margin-top: 10px;
+    margin-bottom: 6px;
+}
+
+#nep-session-wrap{
+    overflow-y: scroll;
+    overflow-x: hidden; 
+    /*border-top:1px solid rgba(34,36,38,.15);*/
+    /*border-bottom:1px solid rgba(34,36,38,.15);*/
+}
+
+#nep-session-table-head{
+    border: none;
+    margin-bottom: 0px;
+    margin-top: 6px;
+    table-layout:fixed;
+}
+
+#nep-session-table-head th{
+    padding-top: 5px;
+    padding-bottom: 5px;
+    line-height: 150%;
+}
+
+#nep-session-table{
+    margin-top: 0px;
+    border-top:none;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+    border-radius: 0;
+    table-layout:fixed;
+}
+
+#nep-session-table tr{
+    line-height: 100%;
+}
+
+#nep-panel-container{
+    height: 400px;
+    margin-left: 0px;
+}
+
+.nep-panel{
+    margin-bottom: 4px!important;
+    box-shadow: none!important;
+    padding: 0!important;
+    padding-left: 1em!important;
+    border-radius: none!important;
+    border: none!important;
+
+}
+
+.nep-props-list{
+    overflow: scroll;
+}
+
+
+.nep-cell-1{width: 6%}
+.nep-cell-2{width: 6%}
+.nep-cell-3{width: 7%}
+.nep-cell-4{width: 20%}
+.nep-cell-5{width: 30%}
+.nep-cell-6{width: 7%}
+.nep-cell-7{width: 13%}
