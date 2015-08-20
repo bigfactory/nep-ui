@@ -2,9 +2,13 @@
   "name": "nep-ui",
   "version": "0.0.2",
   "main": "index.htm",
+  "node-main": "index.js",
   "dependencies": {
     "nep": "^1.1.2",
-    "nep-recorder": "0.0.2"
+    "nep-recorder": "0.0.2",
+    "nep-responder-asset": "0.0.3",
+    "nep-responder-local": "0.0.4",
+    "require-reload": "^0.2.2"
   },
   "window": {
     "show": false,
@@ -14,6 +18,7 @@
     "height": 800,
     "position": "center",
     "min_width": 1200,
-    "min_height": 600
+    "min_height": 600,
+    "focus": true
   }
 }

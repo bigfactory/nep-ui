@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <title>Nep Rule Editor</title>
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <link rel="stylesheet" type="text/css" href="semantic/dist/semantic.min.css">
+  <link rel="stylesheet" href="css/codemirror/codemirror.css">
+  <link rel="stylesheet" href="css/codemirror/theme/midnight.css">
+  <script src="js/jquery.js"></script>
+  <script src="js/codemirror-custom.js"></script>
+  <script src="semantic/dist/semantic.min.js"></script>
+  <style>
+    * {
+        margin: 0;
+        padding: 0;
+    }
+
+    body{
+        height: 100%;
+        overflow: hidden;
+    }
+
+    #editor{
+        min-height: 545px;
+    }
+
+    .CodeMirror{
+        min-height: 545px;
+    }
+
+    #buttons .button{
+        margin-top: 10px;
+    }
+
+    
+  </style>
+
+</head>
+<body>
+    <div id="editor"></div>
+    <div class="ui grid">
+      <div class="four column row">
+        <div id="buttons" class="right floated column">
+          <button id="save" class="ui primary button">
+            Save
+          </button>
+          <button id="close" class="ui button">
+            Discard
+          </button>
+        </div>
+      </div>
+    </div>
+</body>
+<script>
+    var misc = require('./lib/misc');
+    var content = misc.getRuleFileContent();
+    var myCodeMirror = CodeMirror($('#editor')[0], {
+      value: content,
+      mode:  "javascript",
+      theme: "midnight",
+      indentUnit: 4,
+      indentWithTabs: true,
+      lineNumbers: true
+    });
+
+    $('#close').on('click', function(){
+      window.close();
+    });
+
+    $('#save').on('click', function(){
+      var content = myCodeMirror.getValue();
+      
+      misc.setRuleFileContent(content);
+      global.updateRule();
+      setTimeout(function(){
+        window.close();
+      }, 0);
+    });
+</script>
+</html>

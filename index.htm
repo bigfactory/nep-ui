@@ -53,7 +53,15 @@
 </html>
 
 <script>
+var url = require('url');
+var path = require('path');
+
+
 process.env.TERM = 'dumb';
+
+var Proxy = process.mainModule.exports.Proxy;
+var Recorder = process.mainModule.exports.Recorder;
+var misc = process.mainModule.exports.misc;
 
 $('.tabular.menu .item').tab();
 
@@ -189,13 +197,23 @@ function resize(){
 
 resize();
 
-var Proxy = require('nep');
-var Recorder = require('nep-recorder');
-var misc = require('./lib/misc');
-
 var recorder = Recorder.create();
 recorder.clearCache();
 recorder.init();
+
+global.updateRule = function(){
+  var rules = misc.loadRule();
+  var router = proxy.router;
+  var item;
+  for(var id in router.items){
+    router.remove(id);
+  }
+
+  for(var i = 0, len = rules.length; i < len; i++){
+      router.add(rules[i]);
+  }
+
+};
 
 setTimeout(function(){
   var gui = require('nw.gui');
@@ -207,7 +225,12 @@ setTimeout(function(){
     win.showDevTools();
   });
 
-  win.menu = menubar;
+  try {
+    menubar.createMacBuiltin("Nep");
+    win.menu = menubar;
+  } catch (ex) {
+    console.log(ex.message);
+  }
   win.menu.insert(new gui.MenuItem({ label: 'Dev', submenu: dev}));
 
   var clearOption = {
@@ -237,8 +260,21 @@ setTimeout(function(){
   // Register global desktop shortcut, which can work without focus.
   gui.App.registerGlobalHotKey(clearShortcut);
   gui.App.registerGlobalHotKey(devToolShortcut);
-
+  
   win.show();
+
+  $('#nep-session-head').on('click', function(){
+    var editor = gui.Window.open('./edit.htm', {
+      position: 'center',
+      toolbar: false,
+      width: 800,
+      height: 600,
+      "min_width": 800,
+      "min_height": 600,
+      focus: true
+    });
+  });
+  
 }, 100);
 
 $(window).on('resize', resize);
