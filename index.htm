@@ -56,12 +56,13 @@
 var url = require('url');
 var path = require('path');
 
-
 process.env.TERM = 'dumb';
+process.env.NEPPATH = path.join(require('nw.gui').App.dataPath, 'NepFile');
 
-var Proxy = process.mainModule.exports.Proxy;
-var Recorder = process.mainModule.exports.Recorder;
-var misc = process.mainModule.exports.misc;
+var Proxy = require('nep');
+var Recorder = require('nep-recorder');
+var misc = require('./lib/misc');
+
 
 $('.tabular.menu .item').tab();
 
@@ -218,20 +219,48 @@ global.updateRule = function(){
 setTimeout(function(){
   var gui = require('nw.gui');
   var win = gui.Window.get();
-  var menubar = new gui.Menu({ type: 'menubar' });
-  var dev = new gui.Menu();
-  
-  dev.on('click', function() {
-    win.showDevTools();
-  });
+  var menu = new gui.Menu({ type: 'menubar' });
+  var devMenu;
+  var devToolItem;
 
-  try {
-    menubar.createMacBuiltin("Nep");
-    win.menu = menubar;
-  } catch (ex) {
-    console.log(ex.message);
+  function showEditor(){
+    var editor = gui.Window.open('./edit.htm', {
+      position: 'center',
+      toolbar: false,
+      width: 1000,
+      height: 800,
+      "min_width": 1000,
+      "min_height": 800,
+      focus: true
+    });
   }
-  win.menu.insert(new gui.MenuItem({ label: 'Dev', submenu: dev}));
+
+  devMenu = new gui.Menu();
+  devToolItem = new gui.MenuItem({
+    label: '\u5F00\u53D1\u8005\u5DE5\u5177' //开发者工具
+  });
+  devToolItem.click = function(){
+    win.showDevTools();
+  };
+  editorItem = new gui.MenuItem({
+    label: "\u4EE3\u7406\u89C4\u5219\u7F16\u8F91\u5668" //代理规则编辑器
+  });
+  editorItem.click = function(){
+    showEditor();
+  };
+  devMenu.append(editorItem);
+  devMenu.append(devToolItem);
+
+
+  menu.createMacBuiltin("Nep");
+  menu.insert(
+      new gui.MenuItem({
+        label: '\u5DE5\u5177', //工具
+        submenu: devMenu
+      }),
+      2
+  );
+  win.menu = menu;
 
   var clearOption = {
     key : "Ctrl+Shift+x",
@@ -264,15 +293,7 @@ setTimeout(function(){
   win.show();
 
   $('#nep-session-head').on('click', function(){
-    var editor = gui.Window.open('./edit.htm', {
-      position: 'center',
-      toolbar: false,
-      width: 800,
-      height: 600,
-      "min_width": 800,
-      "min_height": 600,
-      focus: true
-    });
+    showEditor();
   });
   
 }, 100);

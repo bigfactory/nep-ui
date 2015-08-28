@@ -4,8 +4,8 @@
   "main": "index.htm",
   "node-main": "index.js",
   "dependencies": {
-    "nep": "^1.1.4",
-    "nep-recorder": "0.0.3",
+    "nep": "^1.1.8",
+    "nep-recorder": "0.0.4",
     "require-reload": "^0.2.2"
   },
   "window": {

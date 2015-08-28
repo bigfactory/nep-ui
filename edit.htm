@@ -23,11 +23,11 @@
     }
 
     #editor{
-        min-height: 545px;
+        min-height: 745px;
     }
 
     .CodeMirror{
-        min-height: 545px;
+        min-height: 745px;
     }
 
     #buttons .button{
@@ -57,6 +57,7 @@
     var misc = require('./lib/misc');
     var content = misc.getRuleFileContent();
     var myCodeMirror = CodeMirror($('#editor')[0], {
+      autofocus: true,
       value: content,
       mode:  "javascript",
       theme: "midnight",
